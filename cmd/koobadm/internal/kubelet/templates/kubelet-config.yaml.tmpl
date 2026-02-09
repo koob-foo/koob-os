@@ -1,0 +1,38 @@
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+authentication:
+  anonymous:
+    enabled: false
+  webhook:
+    cacheTTL: 2m0s
+    enabled: true
+  x509:
+    clientCAFile: /etc/kubernetes/pki/ca.crt
+authorization:
+  mode: Webhook
+  webhook:
+    cacheAuthorizedTTL: 5m0s
+    cacheUnauthorizedTTL: 30s
+cgroupDriver: cgroupfs
+clusterDNS:
+- 10.96.0.10
+clusterDomain: cluster.local
+containerRuntimeEndpoint: unix:///run/containerd/containerd.sock
+healthzBindAddress: 127.0.0.1
+healthzPort: 10248
+staticPodPath: /etc/kubernetes/manifests
+serverTLSBootstrap: false
+rotateCertificates: false
+failSwapOn: false
+systemReserved:
+  cpu: "100m"
+  memory: "100Mi"
+kubeReserved:
+  cpu: "100m"
+  memory: "100Mi"
+enableSystemLogHandler: true
+enableSystemLogQuery: true
+featureGates:
+  NodeLogQuery: true
+shutdownGracePeriod: 30s
+shutdownGracePeriodCriticalPods: 10s

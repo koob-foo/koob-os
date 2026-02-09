@@ -1,0 +1,206 @@
+# Copyright 2026 Koob Foo {{{
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License. }}}
+
+name: koob OS Pipeline
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            code:
+              - 'cmd/**'
+              - 'config/**'
+              - 'hack/**'
+              - 'pkg/**'
+              - 'Makefile'
+              - 'go.mod'
+              - 'go.sum'
+              - 'VERSION'
+              - '.github/workflows/**'
+
+  dco-check:
+    name: DCO Check
+    if: github.event_name != 'push' || !startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run dco-check
+        uses: christophebedard/dco-check@0.5.0
+        with:
+          python-version: '3.12'
+          args: '--verbose'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  quality-check:
+    name: Quality Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+
+      - name: Go Format Check
+        run: |
+          if [ "$(gofmt -l . | wc -l)" -gt 0 ]; then
+            echo "[ FAIL ] The following files are not properly formatted (run 'gofmt -w .'):"
+            gofmt -l .
+            exit 1
+          fi
+          echo "[ OK ] Go formatting is correct."
+
+      - name: License Header Check
+        run: |
+          chmod +x hack/check-license.sh
+          ./hack/check-license.sh
+          echo "[ OK ] License headers verified."
+
+      - name: ShellCheck
+        run: |
+          shellcheck hack/*.sh
+          echo "[ OK ] Shell scripts passed linting."
+
+      - name: Run Go Unit Tests
+        run: make test
+
+      - name: Golangci-lint
+        run: |
+          go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
+          golangci-lint run --timeout=5m
+          echo "[ OK ] Golangci-lint passed."
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+
+      - name: Run Gosec (Static Analysis)
+        run: |
+          go install github.com/securego/gosec/v2/cmd/gosec@latest
+          gosec ./...
+          echo "[ OK ] Gosec scan passed."
+
+      - name: Run Govulncheck (Dependency Audit)
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          govulncheck ./...
+          echo "[ OK ] Dependency scan passed."
+
+  build:
+    name: Monolithic Build
+    needs: [quality-check, security-scan, dco-check, changes]
+    if: |
+      always() &&
+      (needs.changes.outputs.code == 'true' || startsWith(github.ref, 'refs/tags/v')) &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Cache Kernel
+        uses: actions/cache@v4
+        with:
+          path: bzImage
+          key: kernel-${{ runner.os }}-${{ hashFiles('config/kernel-config-amd64', 'hack/build-kernel.sh') }}
+
+      - name: Cache Glibc
+        uses: actions/cache@v4
+        with:
+          path: |
+            tmp/rootfs/lib
+            tmp/rootfs/lib64
+            tmp/rootfs/.libs_deployed
+          key: glibc-${{ runner.os }}-${{ hashFiles('hack/build-libs.sh') }}
+
+      - name: Cache Iptables
+        uses: actions/cache@v4
+        with:
+          path: tmp/rootfs/bin/iptables
+          key: iptables-${{ runner.os }}-${{ hashFiles('hack/build-iptables.sh') }}
+
+      - name: Full Build
+        run: make all
+
+      - name: Upload Core Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: koob-os-core-artifacts
+          path: |
+            bzImage
+            initramfs.cpio
+
+  release:
+    name: GitHub Release
+    needs: build
+    if: always() && startsWith(github.ref, 'refs/tags/v') && needs.build.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Download Core Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: koob-os-core-artifacts
+
+      - name: Extract Changelog
+        id: changelog
+        run: |
+          chmod +x hack/extract-changelog.sh
+          ./hack/extract-changelog.sh ${{ github.ref_name }} > RELEASE_NOTES.md
+          echo "tag_name=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: RELEASE_NOTES.md
+          files: |
+            bzImage
+            initramfs.cpio
+          tag_name: ${{ steps.changelog.outputs.tag_name }}
+          name: koob OS ${{ steps.changelog.outputs.tag_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

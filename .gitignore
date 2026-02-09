@@ -1,0 +1,35 @@
+# Binaries and Dependencies
+bin/
+vendor/
+
+# Local Development & Persistence
+# Use this directory for notes, wip scripts, and personal tools.
+# It is excluded from Git AND will NOT be deleted by 'make distclean'.
+local/
+
+# Build System Staging
+# All generated/ephemeral artifacts live here.
+# Wiped by 'make distclean'.
+tmp/
+.tmp/
+
+# Core System Deliverables (Promoted to Root)
+bzImage
+rootfs.squashfs
+initramfs.cpio
+koob-os.efi
+koob-os.iso
+
+# Configuration Noise
+.config
+.config.old
+*.log
+
+# Terraform
+*.tfstate
+*.tfstate.backup
+.terraform/
+.terraform.lock.hcl
+
+# Local Deployment Examples
+examples/libvirt/enroll/

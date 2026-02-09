@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-controller-manager
+  namespace: kube-system
+  labels:
+    component: kube-controller-manager
+    tier: control-plane
+spec:
+  containers:
+  - command:
+    - kube-controller-manager
+    - --allocate-node-cidrs=true
+    - --authentication-kubeconfig=/etc/kubernetes/controller-manager.conf
+    - --authorization-kubeconfig=/etc/kubernetes/controller-manager.conf
+    - --bind-address=127.0.0.1
+    - --client-ca-file=/etc/kubernetes/pki/ca.crt
+    - --cluster-cidr=10.244.0.0/16
+    - --cluster-name=kubernetes
+    - --cluster-signing-cert-file=/etc/kubernetes/pki/ca.crt
+    - --cluster-signing-key-file=/etc/kubernetes/pki/ca.key
+    - --cluster-signing-duration=87600h
+    - --controllers=*,bootstrapsigner,tokencleaner
+    - --kubeconfig=/etc/kubernetes/controller-manager.conf
+    - --leader-elect=true
+    - --root-ca-file=/etc/kubernetes/pki/ca.crt
+    - --service-account-private-key-file=/etc/kubernetes/pki/sa.key
+    - --use-service-account-credentials=true
+    - --v=2
+    image: registry.k8s.io/kube-controller-manager:v1.35.0
+    imagePullPolicy: IfNotPresent
+    name: kube-controller-manager
+    volumeMounts:
+    - mountPath: /etc/ssl/certs
+      name: ca-certs
+      readOnly: true
+    - mountPath: /etc/kubernetes/pki
+      name: k8s-certs
+      readOnly: true
+    - mountPath: /etc/kubernetes/controller-manager.conf
+      name: kubeconfig
+      readOnly: true
+  hostNetwork: true
+  priorityClassName: system-node-critical
+  volumes:
+  - hostPath:
+      path: /etc/ssl/certs
+      type: DirectoryOrCreate
+    name: ca-certs
+  - hostPath:
+      path: /etc/kubernetes/pki
+      type: DirectoryOrCreate
+    name: k8s-certs
+  - hostPath:
+      path: /etc/kubernetes/controller-manager.conf
+      type: FileOrCreate
+    name: kubeconfig

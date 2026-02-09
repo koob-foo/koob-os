@@ -1,17 +1,6 @@
 # koob OS
 
-> [!NOTE]
-> **Status**: Final code review in progress.
-> **v0.1.0 release**: February 9, 2026.
-
-**koob OS** is a minimal, immutable Kubernetes distribution built from scratch. It uses a custom Linux kernel, the Containerd 2.0 runtime, and Kubernetes 1.35. The distribution replaces the standard Linux user space with a custom Go-based init system (`koobd`) and shell utilities derived from `u-root`.
-
-### Purpose
-**koob OS** provides the foundational building blocks for designing and creating your own minimal, secure Kubernetes operating systems. It serves as a hands-on reference to:
-- **Boot fundamentals**: Understand the process of booting the Linux kernel, the initramfs, and PID 1 initialization.
-- **UEFI Secure Boot cryptography**: Navigate the standards required for a trusted, hardware-verified boot chain.
-- **Immutable root**: Implement immutable architectures using SquashFS for read-only compression and OverlayFS for runtime state management.
-- **Cluster lifecycle**: Explore the internal setup and runtime of a Kubernetes cluster through a transparent, from-scratch implementation.
+**koob OS** is a minimal, immutable Kubernetes distribution built from scratch using the Linux kernel and a Go-based user space. It removes the standard Linux user space (Systemd, GNU Coreutils, package managers) and replaces them with a custom Go-based init system (`koobd`) and shell utilities derived from `u-root`.
 
 ## Core features
 - **Security-first architecture**:
@@ -21,22 +10,36 @@
 - **Kubernetes v1.35.0**: Full control plane (API, scheduler, controller manager, etcd) and Kubelet.
 - **Modern runtime**: Containerd 2.0.
 - **Custom Go stack**: Uses `koobd` as PID 1 for initialization and `koobadm` for PKI and bootstrap.
-- **Resource efficient**: 91MB ISO size.
+- **Resource efficient**: 89MB ISO size.
 - **Open source**: Apache License 2.0.
 
 ## Quick start
-Get a local cluster running on KVM in minutes. You can [download a pre-built ISO](https://github.com/koob-foo/koob-os/releases) or build it from source. This process is tested on **Debian 12 and 13**.
+**koob OS** is designed to be built from source. This ensures that you own the entire trust chain (Secure Boot keys) and can customize the kernel command line for your specific hardware.
+
+This process is tested on **Debian 12 and 13**.
 
 ### 1. Build the koob OS ISO
 ```bash
 git clone https://github.com/koob-foo/koob-os.git && cd koob-os
+
+# Optional: Adjust console settings for bare-metal hardware
+# Edit config/cmdline.txt (e.g., change console=ttyS0 to console=tty0)
+
+# Note: 'make all' runs 'hack/setup-environment.sh' which uses sudo to install dependencies.
+# You may be prompted for your password.
+
 make all
+
+# Note: Compile time including Linux kernel and GLIBC is approximately 30 minutes.
+
 ```
 
 ### 2. Deploy the control plane
 ```bash
 # Launch the VM
-./examples/libvirt/deploy-libvirt-control-plane.sh
+# Note: This script requires sudo privileges to interact with libvirt.
+# You may be prompted for your password.
+./examples/libvirt/deploy-node.sh koob-control-plane
 
 # Connect to the serial console
 sudo virsh console koob-control-plane
@@ -48,16 +51,18 @@ koobadm init
 koobadm config
 ```
 
-### 3. Deploy the worker node
+### 3. Deploy a worker node
 ```bash
 # On the Control Plane: Generate the join command
 koobadm token create --print-join-command
 
 # On the Host: Launch a worker VM
-./examples/libvirt/deploy-libvirt-worker.sh
+# Note: This script requires sudo privileges to interact with libvirt.
+# You may be prompted for your password.
+./examples/libvirt/deploy-node.sh koob-worker-1
 
 # Connect to the worker console
-sudo virsh console koob-worker
+sudo virsh console koob-worker-1
 
 # Inside the Worker: Run the join command from the control plane
 koobadm join <control-plane-ip>:6443 --token <token> ...

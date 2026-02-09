@@ -1,0 +1,9 @@
+# koob OS Kernel Command Line
+# -----------------------------
+# Default: Virtual Machine / Serial Console
+console=ttyS0,115200 net.ifnames=0 random.trust_cpu=on panic=10
+
+# Example: Bare Metal (Physical Monitor + Keyboard)
+# console=tty0 net.ifnames=0 random.trust_cpu=on panic=10
+
+# Note: The LAST console= argument becomes the primary console for the shell.
