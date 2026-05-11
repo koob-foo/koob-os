@@ -68,7 +68,7 @@ if [ "$OS" = "debian" ] || [ "$OS" = "ubuntu" ]; then
   PKGS="build-essential git bison flex libelf-dev libssl-dev bc gawk wget"
   PKGS="$PKGS curl squashfs-tools xorriso qemu-kvm libvirt-daemon-system"
   PKGS="$PKGS libvirt-clients bridge-utils sbsigntool efitools uuid-runtime"
-  PKGS="$PKGS dwarves mtools dosfstools systemd-boot ovmf"
+  PKGS="$PKGS dwarves mtools dosfstools systemd-boot ovmf rsync"
 
   # Add version-specific packages for modern UKI builds
   MAJOR_VER=$(echo "$VERSION_ID" | cut -d. -f1)

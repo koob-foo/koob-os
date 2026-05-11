@@ -111,11 +111,10 @@ koobadm join <control-plane-ip>:6443 --token <token> --discovery-token-ca-cert-h
 For demonstration purposes, this guide uses **Cilium** for eBPF-based networking and observability.
 
 ```bash
+export CILIUM_VERS="1.19.3"
 export CONTROL_PLANE_IP="x.x.x.x"
-helm install \
-    cilium \
-    cilium/cilium \
-    --version 1.18.5 \
+helm install cilium oci://quay.io/cilium/charts/cilium \
+    --version $CILIUM_VERS \
     --namespace kube-system \
     --set ipam.mode=kubernetes \
     --set kubeProxyReplacement=true \

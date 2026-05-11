@@ -149,16 +149,28 @@ fi
 
 # Select firmware based on mode
 if [ "$INSECURE_MODE" = true ]; then
-  FIRMWARE_LOADER="/usr/share/OVMF/OVMF_CODE.fd"
+  if [ -f "/usr/share/OVMF/OVMF_CODE_4M.fd" ]; then
+    FIRMWARE_LOADER="/usr/share/OVMF/OVMF_CODE_4M.fd"
+  else
+    FIRMWARE_LOADER="/usr/share/OVMF/OVMF_CODE.fd"
+  fi
 else
-  FIRMWARE_LOADER="/usr/share/OVMF/OVMF_CODE.secboot.fd"
+  if [ -f "/usr/share/OVMF/OVMF_CODE_4M.secboot.fd" ]; then
+    FIRMWARE_LOADER="/usr/share/OVMF/OVMF_CODE_4M.secboot.fd"
+  else
+    FIRMWARE_LOADER="/usr/share/OVMF/OVMF_CODE.secboot.fd"
+  fi
 fi
 
 # Construct virt-install parameters
 # We use positional parameters "$@" to build the command safely with proper
 # quoting.
 BOOT_OPTS="loader=$FIRMWARE_LOADER,loader_ro=yes,loader_type=pflash"
-VARS_TEMP="/usr/share/OVMF/OVMF_VARS.fd"
+if [ -f "/usr/share/OVMF/OVMF_VARS_4M.fd" ]; then
+  VARS_TEMP="/usr/share/OVMF/OVMF_VARS_4M.fd"
+else
+  VARS_TEMP="/usr/share/OVMF/OVMF_VARS.fd"
+fi
 set -- \
   --name "$VM_NAME" \
   --memory 8192 \
