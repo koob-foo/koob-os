@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] - 2026-05-11
+
+### Summary
+Koob OS 0.1.1 introduces minor infrastructure upgrades and build system refinements.
+
+- **Upgraded Kubernetes** to v1.36.0.
+- **Updated Cilium** to v1.19.3 in libvirt deployment examples.
+- **Improved Build System**: Switched GLIBC mirrors.
+- **Refined Documentation**: Updated deployment guides and README to reflect the new versions.
+
+> [!WARNING]
+> Released artifacts are **unsigned**. They cannot be cryptographically verified and should only be used for testing purposes. To generate verifiable, secure artifacts, you must build them locally from source.
+
 ## [0.1.0] - 2026-02-09
 
 ### Summary

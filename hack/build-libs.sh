@@ -42,7 +42,7 @@ GLIBC_VERSION="2.40"
 KERNEL_VERSION="6.6.74"
 ROOTFS="tmp/rootfs"
 
-GLIBC_URL="https://ftp.gnu.org/gnu/glibc/glibc-${GLIBC_VERSION}.tar.xz"
+GLIBC_URL="https://gnu.mirrorservice.org/glibc/glibc-${GLIBC_VERSION}.tar.xz"
 KURL_BASE="https://cdn.kernel.org/pub/linux/kernel/v6.x"
 KERNEL_URL="${KURL_BASE}/linux-${KERNEL_VERSION}.tar.xz"
 JOBS=$(nproc 2>/dev/null || echo 1)
