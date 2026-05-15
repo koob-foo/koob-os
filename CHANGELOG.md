@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] - 2026-05-15
+
+### Summary
+Koob OS 0.1.2 addresses critical security vulnerabilities and upgrades core system components.
+
+- **Security Fix (CVE-2026-31431)**: Patched the "Copy Fail" container escape vulnerability by hardening the Linux kernel configuration.
+- **Kernel Upgrade**: Updated Linux kernel to **v6.18.30**.
+- **GLIBC Update**: Updated GLIBC to utilize the latest kernel headers.
+
+> [!WARNING]
+> Released artifacts are **unsigned**. They cannot be cryptographically verified and should only be used for testing purposes. To generate verifiable, secure artifacts, you must build them locally from source.
+
 ## [0.1.1] - 2026-05-11
 
 ### Summary

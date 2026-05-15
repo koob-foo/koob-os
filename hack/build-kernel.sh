@@ -31,7 +31,7 @@ REPO_ROOT=$(cd "$SCRIPT_DIR/.." >/dev/null 2>&1 && pwd)
 cd "$REPO_ROOT"
 
 # Configuration
-VERSION="linux-6.6.y"
+VERSION="linux-6.18.y"
 KERNEL_SRC="tmp/kernel-src"
 KERNEL_URL="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git"
 CONFIG_FILE="config/kernel-config-amd64"
