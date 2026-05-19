@@ -30,10 +30,10 @@ REPO_ROOT=$(cd "$SCRIPT_DIR/.." >/dev/null 2>&1 && pwd)
 cd "$REPO_ROOT"
 
 # Configuration
-K8S_VER="v1.36.0"
-CONTAINERD_VER="2.2.1"
-RUNC_VER="v1.4.0"
-CNI_VER="v1.9.0"
+K8S_VER="v1.36.1"
+CONTAINERD_VER="2.3.0"
+RUNC_VER="v1.4.2"
+CNI_VER="v1.9.1"
 ARCH="amd64"
 ROOTFS="tmp/rootfs"
 DEST_BIN="$ROOTFS/bin"

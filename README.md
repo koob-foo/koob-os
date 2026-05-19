@@ -7,8 +7,8 @@
   - **Unified Kernel Image (UKI)**: Single signed EFI binary containing the kernel, initramfs, and root filesystem.
   - **UEFI Secure Boot**: Custom key enrollment with self-generated certificates (PK, KEK, db) and `.auth` files.
   - **Immutable root**: Read-only SquashFS file system with OverlayFS for runtime volatility.
-- **Kubernetes v1.36.0**: Full control plane (API, scheduler, controller manager, etcd) and Kubelet.
-- **Modern runtime**: Containerd 2.0.
+- **Kubernetes v1.36.1**: Full control plane (API, scheduler, controller manager, etcd) and Kubelet.
+- **Modern runtime**: Containerd 2.x.
 - **Custom Go stack**: Uses `koobd` as PID 1 for initialization and `koobadm` for PKI and bootstrap.
 - **Resource efficient**: 89MB ISO size.
 - **Open source**: Apache License 2.0.

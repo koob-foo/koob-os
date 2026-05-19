@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.3] - 2026-05-19
+
+### Summary
+Koob OS 0.1.3 provides general updates to system dependencies and core components.
+
+- **Kubernetes**: Upgraded to **v1.36.1**.
+- **Container Runtime**: Upgraded containerd to **2.3.0** and runc to **v1.4.2**.
+- **Networking**: Updated CNI plugins to **v1.9.1**.
+- **Kernel Upgrade**: Updated Linux kernel to **v6.18.32**, which resolves the "ssh-keygen-pwn" vulnerability (**CVE-2026-46333**).
+
+> [!WARNING]
+> Released artifacts are **unsigned**. They cannot be cryptographically verified and should only be used for testing purposes. To generate verifiable, secure artifacts, you must build them locally from source.
+
 ## [0.1.2] - 2026-05-15
 
 ### Summary
