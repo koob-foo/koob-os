@@ -39,7 +39,7 @@ mkdir -p "$TEMP_DIR"
 
 # Configuration
 GLIBC_VERSION="2.40"
-KERNEL_VERSION="6.18.30"
+KERNEL_VERSION="6.18.32"
 ROOTFS="tmp/rootfs"
 
 GLIBC_URL="https://gnu.mirrorservice.org/glibc/glibc-${GLIBC_VERSION}.tar.xz"
